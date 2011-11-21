@@ -1,37 +1,45 @@
 
-CC =  gcc
-CFLAGS = -g 
+# C compiler
+CC = gcc
+# Compiling flags
+ifneq ($(NDEBUG), 1)
+	CFLAGS = -g -O0 -Wall -std=c99
+else 
+	CFLAGS = -O3 -std=c99 -DNDEBUG=1
+endif
+# Linking flags
+LDFLAGS = 
 
-OUTPUT_FN_ALL = heapman
-OBJ_FILES_ALL = memory_model.o main.o list.o
+# Directory that contains object files
+OBJ_DIR = obj
+# Directory that contains source files
+SRC_DIR = src
+# Directory that contains binary files
+BIN_DIR = bin
 
-OUTPUT_FN_LIST_TESTS = list_tests
-OBJ_FILES_LIST_TESTS = memory_model.o list_tests.o list.o
+# Result program filename
+BIN_FN = heap-manager
 
-all: ${OBJ_FILES_ALL}
-	@echo "Make all"
-	@echo "Compiling begins..."
-	${CC} ${CFLAGS} -o ${OUTPUT_FN_ALL} ${OBJ_FILES_ALL} 
+# Project's obejct files
+OBJ_FILES = $(OBJ_DIR)/memory_model.o $(OBJ_DIR)/main.o $(OBJ_DIR)/list.o 
+# Project's source files 
+# (generated automatically using the existing object files list)
+SRC_FILES = ${OBJ_FILES:.o=.c}
+
+all: mkdirs $(OBJ_FILES)
+	@echo "Building the project..."
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(BIN_DIR)/$(BIN_FN) $(OBJ_FILES)
 	@echo "Done!"
 
-list_tests: ${OBJ_FILES_LIST_TESTS}
-	@echo "Make list tests"
-	@echo "Compiling begins..."
-	${CC} ${CFLAGS} -o ${OUTPUT_FN_LIST_TESTS} ${OBJ_FILES_LIST_TESTS} 
+$(OBJ_DIR)/%.o:
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/$*.c -o $@
+
+mkdirs:
+	@echo "Making directories..."
+	mkdir -p $(OBJ_DIR) $(BIN_DIR)
 	@echo "Done!"
-
-memory_model.o: memory_model.c memory_model.h
-	${CC} ${CFLAGS} -c memory_model.c
-
-main.o: main.c
-	${CC} ${CFLAGS} -c main.c
-
-list_tests.o: list_tests.c
-	${CC} ${CFLAGS} -c list_tests.c
-
-list.o: list.h list.c
-	${CC} ${CFLAGS} -c list.c
 
 clean:
 	@echo "Cleaning..."
-	rm -rf *~ *.o *.p *.a ${OUTPUT_FN_LIST_TESTS} ${OBJ_FILES_LIST_TESTS}
+	rm -rf $(BIN_DIR) $(OBJ_DIR)
+	@echo "Done!"
