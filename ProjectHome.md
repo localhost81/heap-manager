@@ -1,0 +1,1 @@
+The program simulates a simple heap manager.
